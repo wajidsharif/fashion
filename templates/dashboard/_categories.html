@@ -1,0 +1,58 @@
+<div>
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold text-gray-900">All Categories ({{ categories|length }})</h2>
+        <a href="{% url 'dashboard:category_add' %}" class="px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition">+ Add Category</a>
+    </div>
+    {% if categories %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b border-gray-100">
+                    <th class="pb-3 font-medium">Image</th>
+                    <th class="pb-3 font-medium">Name</th>
+                    <th class="pb-3 font-medium">Slug</th>
+                    <th class="pb-3 font-medium">Status</th>
+                    <th class="pb-3 font-medium">Products</th>
+                    <th class="pb-3 font-medium">Created</th>
+                    <th class="pb-3 font-medium">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                    <td class="py-3">
+                        {% if cat.image %}
+                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="w-12 h-12 object-cover rounded-lg" style="width:48px;height:48px;min-width:48px;min-height:48px">
+                        {% else %}
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-300 text-xs">No img</div>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 font-medium text-gray-900">{{ cat.name }}</td>
+                    <td class="py-3 text-gray-500 text-xs">{{ cat.slug }}</td>
+                    <td class="py-3">
+                        {% if cat.is_active %}
+                        <span class="text-green-600 text-xs font-medium">Active</span>
+                        {% else %}
+                        <span class="text-red-500 text-xs font-medium">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 text-gray-600">{{ cat.products.count }}</td>
+                    <td class="py-3 text-gray-500 text-xs">{{ cat.created_at|date:"M d, Y" }}</td>
+                    <td class="py-3">
+                        <div class="flex items-center space-x-2">
+                            <a href="{% url 'dashboard:category_edit' cat.pk %}" class="px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-lg hover:bg-gray-50 transition">Edit</a>
+                            <form method="POST" action="{% url 'dashboard:category_delete' cat.pk %}" onsubmit="return confirm('Delete {{ cat.name }}?')">
+                                {% csrf_token %}
+                                <button type="submit" class="px-3 py-1.5 border border-red-200 text-red-600 text-xs font-medium rounded-lg hover:bg-red-50 transition">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-10">No categories yet.</p>
+    {% endif %}
+</div>

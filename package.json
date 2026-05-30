@@ -1,0 +1,12 @@
+{
+  "name": "fashion-store",
+  "version": "1.0.0",
+  "description": "F for Fashion - Premium Online Clothing Store",
+  "scripts": {
+    "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/main.css --minify",
+    "watch:css": "tailwindcss -i ./static/css/input.css -o ./static/css/main.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

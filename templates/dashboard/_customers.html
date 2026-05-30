@@ -1,0 +1,49 @@
+<div>
+    <h2 class="text-lg font-bold text-gray-900 mb-6">All Customers ({{ customers|length }})</h2>
+    {% if customers %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b border-gray-100">
+                    <th class="pb-3 font-medium">Customer</th>
+                    <th class="pb-3 font-medium">Email</th>
+                    <th class="pb-3 font-medium">Mobile</th>
+                    <th class="pb-3 font-medium">City</th>
+                    <th class="pb-3 font-medium">Joined</th>
+                    <th class="pb-3 font-medium">Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                    <td class="py-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                {% if c.first_name %}{{ c.first_name|first|upper }}{% else %}{{ c.username|first|upper }}{% endif %}
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ c.get_full_name|default:c.username }}</p>
+                                <p class="text-xs text-gray-400">{{ c.username }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 text-gray-500">{{ c.email }}</td>
+                    <td class="py-3 text-gray-500">{{ c.profile.mobile|default:"—" }}</td>
+                    <td class="py-3 text-gray-500">{{ c.profile.city|default:"—" }}</td>
+                    <td class="py-3 text-gray-500 text-xs">{{ c.date_joined|date:"M d, Y" }}</td>
+                    <td class="py-3">
+                        {% if c.is_active %}
+                        <span class="text-green-600 text-xs font-medium">Active</span>
+                        {% else %}
+                        <span class="text-red-500 text-xs font-medium">Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-10">No customers yet.</p>
+    {% endif %}
+</div>

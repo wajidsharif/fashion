@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Fashion Store{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:30 }}{% endblock %}
+{% block og_title %}{{ product.name }} - Fashion Store{% endblock %}
+{% block og_description %}{{ product.description|truncatewords:30 }}{% endblock %}
+{% block og_image %}{% if product.image %}{{ product.image.url }}{% endif %}{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8 text-sm text-gray-500" x-data>
+        <a href="{% url 'homepage' %}" class="hover:text-black transition">Home</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'products:shop' %}" class="hover:text-black transition">Shop</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'products:shop' %}?category={{ product.category.slug }}" class="hover:text-black transition">{{ product.category.name }}</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium truncate">{{ product.name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <!-- Product Images -->
+        <div class="space-y-4">
+            <div class="relative aspect-square bg-gray-50 rounded-2xl overflow-hidden group">
+                {% if product.has_discount %}
+                <span class="absolute top-4 left-4 z-10 bg-red-500 text-white text-sm font-bold px-3 py-1.5 rounded-full">-{{ product.discount_percentage }}% OFF</span>
+                {% endif %}
+                {% if product.image %}
+                <img id="main-image" src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-gray-300 text-4xl font-bold">{{ product.name|first }}</div>
+                {% endif %}
+            </div>
+            {% if product.gallery_images.all %}
+            <div class="grid grid-cols-4 gap-3">
+                {% for img in product.gallery_images.all %}
+                <button onclick="document.getElementById('main-image').src='{{ img.image.url }}'" class="aspect-square rounded-xl overflow-hidden border-2 border-transparent hover:border-black transition">
+                    <img src="{{ img.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Info -->
+        <div id="product-form-data" class="lg:pt-4" x-data="{ selectedSize: '', selectedColor: '', quantity: 1 }">
+            <p class="text-sm text-gray-400 uppercase tracking-wider mb-2">{{ product.category.name }}</p>
+            <h1 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
+
+            <!-- Price -->
+            <div class="flex items-baseline space-x-3 mb-6">
+                {% if product.has_discount %}
+                <span class="text-3xl font-bold text-gray-900">Rs.{{ product.discount_price }}</span>
+                <span class="text-xl text-gray-400 line-through">Rs.{{ product.price }}</span>
+                <span class="text-sm font-medium text-red-500 bg-red-50 px-2 py-1 rounded-full">Save Rs.{{ product.get_price_diff }}</span>
+                {% else %}
+                <span class="text-3xl font-bold text-gray-900">Rs.{{ product.price }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            <p class="text-gray-600 leading-relaxed mb-8">{{ product.description }}</p>
+
+            <!-- Size Selection -->
+            {% if product.sizes.all %}
+            <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">Size</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for size in product.sizes.all %}
+                    <button @click="selectedSize = '{{ size.code }}'" :class="{ 'bg-black text-white border-black': selectedSize === '{{ size.code }}', 'bg-white text-gray-700 border-gray-300 hover:border-black': selectedSize !== '{{ size.code }}' }" class="px-4 py-2.5 border rounded-lg text-sm font-medium transition">
+                        {{ size.name }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Color Selection -->
+            {% if product.colors.all %}
+            <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">Color</h3>
+                <div class="flex flex-wrap gap-3">
+                    {% for color in product.colors.all %}
+                    <button @click="selectedColor = '{{ color.name }}'" :class="{ 'ring-2 ring-offset-2 ring-black scale-110': selectedColor === '{{ color.name }}' }" class="w-10 h-10 rounded-full border-2 border-gray-300 hover:scale-110 transition transform" style="background-color: {{ color.code }};" title="{{ color.name }}">
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quantity -->
+            <div class="mb-8">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
+                <div class="flex items-center space-x-4">
+                    <button @click="quantity = Math.max(1, quantity - 1)" class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:border-black transition text-lg">−</button>
+                    <span class="text-lg font-medium w-8 text-center" x-text="quantity"></span>
+                    <button @click="quantity = Math.min({{ product.stock }}, quantity + 1)" class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:border-black transition text-lg">+</button>
+                </div>
+            </div>
+
+            {% if product.stock > 0 %}
+            <p class="text-sm text-green-600 mb-4 flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                In Stock ({{ product.stock }} available)
+            </p>
+            {% else %}
+            <p class="text-sm text-red-600 mb-4">Out of Stock</p>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                {% if product.stock > 0 %}
+                <button onclick="addToCart(this, {{ product.id }})" class="flex-1 px-8 py-4 bg-black text-white font-medium rounded-xl hover:bg-gray-800 transition transform hover:scale-[1.02] flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                    <span>Add to Cart</span>
+                </button>
+                {% endif %}
+                <a href="{% url 'cart:cart' %}" class="flex-1 px-8 py-4 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition transform hover:scale-[1.02] flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span>Proceed to Checkout</span>
+                </a>
+                <a href="{% url 'products:shop' %}" class="flex-1 px-8 py-4 border-2 border-black text-black font-medium rounded-xl hover:bg-black hover:text-white transition transform hover:scale-[1.02] flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <span>Shop More</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <section class="mt-16 lg:mt-24">
+        <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-8">You May Also Like</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {% for related in related_products %}
+            <div class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                <a href="{{ related.get_absolute_url }}" class="block relative aspect-square bg-gray-50 overflow-hidden">
+                    {% if related.has_discount %}
+                    <span class="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">-{{ related.discount_percentage }}%</span>
+                    {% endif %}
+                    {% if related.image %}
+                    <img src="{{ related.image.url }}" alt="{{ related.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-300">{{ related.name|first }}</div>
+                    {% endif %}
+                </a>
+                <div class="p-3 lg:p-4">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">{{ related.category.name }}</p>
+                    <a href="{{ related.get_absolute_url }}" class="block font-medium text-gray-900 hover:text-gray-600 transition text-sm lg:text-base truncate">{{ related.name }}</a>
+                    <div class="mt-2 flex items-center space-x-2">
+                        {% if related.has_discount %}
+                        <span class="font-bold text-gray-900">Rs.{{ related.discount_price }}</span>
+                        <span class="text-sm text-gray-400 line-through">Rs.{{ related.price }}</span>
+                        {% else %}
+                        <span class="font-bold text-gray-900">Rs.{{ related.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function addToCart(btn, productId) {
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="animate-spin w-5 h-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>';
+
+    const formEl = document.getElementById('product-form-data');
+    let alpine = { quantity: 1, selectedSize: '', selectedColor: '' };
+    if (formEl && formEl.__x && formEl.__x.$data) {
+        alpine = formEl.__x.$data;
+    }
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', alpine.quantity || 1);
+    formData.append('size', alpine.selectedSize || '');
+    formData.append('color', alpine.selectedColor || '');
+    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    fetch('{% url "cart:cart_add" %}', { method: 'POST', body: formData })
+        .then(r => { if (!r.ok) throw new Error('Request failed'); return r.json(); })
+        .then(data => {
+            if (data.success) {
+                const badge = document.getElementById('cart-count-badge');
+                if (badge) {
+                    badge.textContent = data.cart_count;
+                    badge.classList.remove('hidden');
+                }
+                btn.innerHTML = '✓ Added to Cart';
+                btn.classList.remove('bg-black', 'hover:bg-gray-800');
+                btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                setTimeout(() => {
+                    btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>\n                    <span>Add to Cart</span>';
+                    btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    btn.classList.add('bg-black', 'hover:bg-gray-800');
+                    btn.disabled = false;
+                }, 2000);
+            } else {
+                restoreBtn(btn);
+            }
+        })
+        .catch(() => restoreBtn(btn));
+}
+
+function restoreBtn(btn) {
+    btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>\n                    <span>Add to Cart</span>';
+    btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+    btn.classList.add('bg-black', 'hover:bg-gray-800');
+    btn.disabled = false;
+}
+</script>
+{% endblock %}

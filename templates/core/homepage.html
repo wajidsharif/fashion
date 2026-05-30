@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fashion Store - Premium Fashion & Latest Trends{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="relative bg-gray-50 overflow-hidden">
+    <div class="max-w-7xl mx-auto">
+        <div class="relative z-10 pb-8 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+            <div class="pt-10 sm:pt-16 lg:pt-20 xl:pt-28 px-4 sm:px-6 lg:px-8">
+                <div class="sm:text-center lg:text-left">
+                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                        <span class="block">F for Fashion</span>
+                        <span class="mt-2 text-2xl block font-medium text-gray-700">That Defines You</span>
+                        <span class="mt-2 text-2xl block font-medium text-gray-700">Where Style Speaks</span>
+                        <span class="mt-2 text-2xl block font-medium text-gray-700">Grace Meets Glamour</span>
+                    </h1>
+                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        Discover premium fashion that defines your unique style. From timeless classics to the latest trends.
+                    </p>
+                    <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-4 sm:justify-center lg:justify-start">
+                        <a href="{% url 'products:shop' %}" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-lg text-white bg-black hover:bg-gray-800 transition transform hover:scale-105">
+                            Shop Now
+                            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                        <a href="{% url 'products:shop' %}?sort=-created_at" class="inline-flex items-center justify-center px-8 py-4 border-2 border-black text-base font-medium rounded-lg text-black hover:bg-black hover:text-white transition">
+                            New Arrivals
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+        <div class="relative h-56 w-full sm:h-72 md:h-96 lg:h-full bg-gray-100" x-data="{
+            currentSlide: 0,
+            slides: [
+                '{% static "images/cr1.jpg" %}',
+                '{% static "images/cr2.jpg" %}',
+                '{% static "images/cr3.jpg" %}',
+                '{% static "images/cr4.jpg" %}',
+                '{% static "images/cr5.jpg" %}',
+                '{% static "images/cr6.jpg" %}',
+                '{% static "images/cr7.jpg" %}',
+                '{% static "images/cr8.jpg" %}',
+                '{% static "images/cr9.jpg" %}'
+            ],
+            prev() { this.currentSlide = this.currentSlide > 0 ? this.currentSlide - 1 : this.slides.length - 1 },
+            next() { this.currentSlide = this.currentSlide < this.slides.length - 1 ? this.currentSlide + 1 : 0 },
+            init() { setInterval(() => { this.next() }, 4000) }
+        }">
+            <template x-for="(slide, index) in slides" :key="index">
+                <div x-show="currentSlide === index" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="absolute inset-0 flex items-center justify-center">
+                    <img :src="slide" alt="Fashion Store" class="w-full h-full object-contain">
+                </div>
+            </template>
+
+            <button @click="prev()" class="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full shadow-lg transition transform hover:scale-110">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button @click="next()" class="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full shadow-lg transition transform hover:scale-110">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center space-x-3">
+                <template x-for="(slide, index) in slides" :key="index">
+                    <button @click="currentSlide = index" :class="currentSlide === index ? 'bg-white scale-110' : 'bg-white/40 hover:bg-white/70'" class="w-3 h-3 rounded-full transition-all duration-300"></button>
+                </template>
+            </div>
+
+            <div class="absolute top-4 right-4 z-10 bg-black/50 text-white text-sm font-medium px-3 py-1.5 rounded-full">
+                <span x-text="currentSlide + 1"></span>/<span x-text="slides.length"></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+<section class="py-12 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 lg:mb-14">
+            <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Shop by Category</h2>
+            <p class="mt-3 text-gray-500 text-lg">Find exactly what you're looking for</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+            {% for category in featured_categories %}
+            <a href="{% url 'products:shop' %}?category={{ category.slug }}" class="group relative bg-gray-50 rounded-2xl overflow-hidden aspect-square hover:shadow-lg transition">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 lg:p-6 z-20">
+                    {% comment %} <h3 class="text-white font-bold text-lg lg:text-xl">{{ category.name }}</h3> {% endcomment %}
+                    <p class="text-white/80 text-sm mt-1 opacity-0 group-hover:opacity-100 transition">Shop Now →</p>
+                </div>
+                <div class="absolute inset-0 bg-gray-100">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <span class="text-6xl font-bold text-gray-300 select-none">{{ category.name|first }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% empty %}
+            {% for i in "1234"|make_list %}
+            <div class="bg-gray-50 rounded-2xl aspect-square flex items-center justify-center">
+                <span class="text-gray-300 text-lg">Category</span>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- New Arrivals -->
+<section class="py-12 lg:py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10 lg:mb-14">
+            <div>
+                <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">New Arrivals</h2>
+                <p class="mt-2 text-gray-500">The latest styles, just dropped</p>
+            </div>
+            <a href="{% url 'products:shop' %}?sort=-created_at" class="hidden sm:inline-flex items-center text-sm font-medium text-black hover:text-gray-600 transition">
+                View All
+                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {% for product in new_arrivals %}
+            <div class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                <a href="{{ product.get_absolute_url }}" class="block relative aspect-square bg-gray-50 overflow-hidden">
+                    {% if product.has_discount %}
+                    <span class="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">-{{ product.discount_percentage }}%</span>
+                    {% endif %}
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-300 text-sm">{{ product.name|first }}</div>
+                    {% endif %}
+                </a>
+                <div class="p-3 lg:p-4">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">{{ product.category.name }}</p>
+                    <a href="{{ product.get_absolute_url }}" class="block font-medium text-gray-900 hover:text-gray-600 transition text-sm lg:text-base truncate">{{ product.name }}</a>
+                    <div class="mt-2 flex items-center space-x-2">
+                        {% if product.has_discount %}
+                        <span class="font-bold text-gray-900">Rs.{{ product.discount_price }}</span>
+                        <span class="text-sm text-gray-400 line-through">Rs.{{ product.price }}</span>
+                        {% else %}
+                        <span class="font-bold text-gray-900">Rs.{{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            {% for i in "1234"|make_list %}
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <div class="aspect-square bg-gray-100 flex items-center justify-center"><span class="text-gray-300">Product</span></div>
+                <div class="p-4"><div class="h-4 bg-gray-100 rounded w-3/4 mb-2"></div><div class="h-4 bg-gray-100 rounded w-1/2"></div></div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8 sm:hidden">
+            <a href="{% url 'products:shop' %}?sort=-created_at" class="inline-flex items-center text-sm font-medium text-black hover:text-gray-600 transition">
+                View All New Arrivals
+                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Promotional Banner - commented out for later activation -->
+{% comment %}
+<section class="py-12 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative bg-black rounded-3xl overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black opacity-60"></div>
+            <div class="relative z-10 px-8 py-12 lg:py-20 lg:px-16 text-center lg:text-left">
+                <div class="lg:max-w-lg">
+                    <p class="text-white/60 uppercase tracking-widest text-sm mb-4">Limited Time Offer</p>
+                    <h2 class="text-3xl lg:text-5xl font-bold text-white mb-4">Summer Sale</h2>
+                    <p class="text-gray-300 text-lg mb-8">Up to 40% off on selected items. Don't miss out on premium fashion at incredible prices.</p>
+                    <a href="{% url 'products:shop' %}" class="inline-flex items-center px-8 py-4 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition transform hover:scale-105">
+                        Shop the Sale
+                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endcomment %}
+
+<!-- Best Sellers -->
+<section class="py-12 lg:py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10 lg:mb-14">
+            <div>
+                <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Best Sellers</h2>
+                <p class="mt-2 text-gray-500">Most loved products this season</p>
+            </div>
+            <a href="{% url 'products:shop' %}?sort=-created_at" class="hidden sm:inline-flex items-center text-sm font-medium text-black hover:text-gray-600 transition">
+                View All
+                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {% for product in best_sellers %}
+            <div class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                <a href="{{ product.get_absolute_url }}" class="block relative aspect-square bg-gray-50 overflow-hidden">
+                    {% if product.has_discount %}
+                    <span class="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">-{{ product.discount_percentage }}%</span>
+                    {% endif %}
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-300 text-sm">{{ product.name|first }}</div>
+                    {% endif %}
+                </a>
+                <div class="p-3 lg:p-4">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">{{ product.category.name }}</p>
+                    <a href="{{ product.get_absolute_url }}" class="block font-medium text-gray-900 hover:text-gray-600 transition text-sm lg:text-base truncate">{{ product.name }}</a>
+                    <div class="mt-2 flex items-center space-x-2">
+                        {% if product.has_discount %}
+                        <span class="font-bold text-gray-900">Rs.{{ product.discount_price }}</span>
+                        <span class="text-sm text-gray-400 line-through">Rs.{{ product.price }}</span>
+                        {% else %}
+                        <span class="font-bold text-gray-900">Rs.{{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            {% for i in "1234"|make_list %}
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <div class="aspect-square bg-gray-100"></div>
+                <div class="p-4"><div class="h-4 bg-gray-100 rounded w-3/4 mb-2"></div><div class="h-4 bg-gray-100 rounded w-1/2"></div></div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-12 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 lg:mb-14">
+            <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">What Our Customers Say</h2>
+            <p class="mt-3 text-gray-500 text-lg">Real reviews from real customers</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <div class="bg-gray-50 rounded-2xl p-6 lg:p-8">
+                <div class="flex text-yellow-400 mb-4">★★★★★</div>
+                <p class="text-gray-600 mb-4">"Absolutely love the quality! The fabric is premium and the fit is perfect. Will definitely order again."</p>
+                <div class="font-medium text-gray-900">Sarah Ahmed</div>
+                <div class="text-sm text-gray-400">Verified Buyer</div>
+            </div>
+            <div class="bg-gray-50 rounded-2xl p-6 lg:p-8">
+                <div class="flex text-yellow-400 mb-4">★★★★★</div>
+                <p class="text-gray-600 mb-4">"Fast delivery and amazing customer service. The outfit was exactly as described. Highly recommended!"</p>
+                <div class="font-medium text-gray-900">Fatima Khan</div>
+                <div class="text-sm text-gray-400">Verified Buyer</div>
+            </div>
+            <div class="bg-gray-50 rounded-2xl p-6 lg:p-8">
+                <div class="flex text-yellow-400 mb-4">★★★★★</div>
+                <p class="text-gray-600 mb-4">"Best online shopping experience in Pakistan. The WhatsApp ordering makes it so convenient!"</p>
+                <div class="font-medium text-gray-900">Ayesha Malik</div>
+                <div class="text-sm text-gray-400">Verified Buyer</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="py-12 lg:py-20 bg-black">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">Stay in the Loop</h2>
+        <p class="text-gray-400 text-lg mb-8">Subscribe to get special offers, free giveaways, and exclusive deals.</p>
+        <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input type="email" placeholder="Enter your email" class="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white outline-none text-sm" required>
+            <button type="submit" class="px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition text-sm">Subscribe</button>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

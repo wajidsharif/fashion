@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if product %}Edit {{ product.name }}{% else %}Add Product{% endif %} - Dashboard{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <a href="{% url 'dashboard:main' %}?tab=products" class="text-sm text-gray-500 hover:text-black transition mb-6 inline-block">← Back to Dashboard</a>
+
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:p-8">
+            <h1 class="text-2xl font-bold text-gray-900 mb-6">
+                {% if product %}Edit Product{% else %}Add New Product{% endif %}
+            </h1>
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
+                        <input type="text" name="name" value="{{ product.name|default:'' }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
+                        <select name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition text-sm">
+                            {% for cat in categories %}
+                            <option value="{{ cat.pk }}" {% if product and product.category.pk == cat.pk %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                    <textarea name="description" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition text-sm">{{ product.description|default:'' }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Price (Rs.)</label>
+                        <input type="number" name="price" value="{{ product.price|default:'' }}" step="0.01" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Discount Price</label>
+                        <input type="number" name="discount_price" value="{{ product.discount_price|default:'' }}" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Stock</label>
+                        <input type="number" name="stock" value="{{ product.stock|default:'0' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Sizes</label>
+                        <div class="flex flex-wrap gap-2 p-3 border border-gray-300 rounded-lg">
+                            {% for size in sizes %}
+                            <label class="flex items-center space-x-1.5 cursor-pointer">
+                                <input type="checkbox" name="sizes" value="{{ size.pk }}" {% if product and size in product.sizes.all %}checked{% endif %} class="rounded border-gray-300 text-black focus:ring-black">
+                                <span class="text-sm text-gray-700">{{ size.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Colors</label>
+                        <div class="flex flex-wrap gap-2 p-3 border border-gray-300 rounded-lg">
+                            {% for color in colors %}
+                            <label class="flex items-center space-x-1.5 cursor-pointer">
+                                <input type="checkbox" name="colors" value="{{ color.pk }}" {% if product and color in product.colors.all %}checked{% endif %} class="rounded border-gray-300 text-black focus:ring-black">
+                                <span class="w-3 h-3 rounded-full" style="background: {{ color.code }}"></span>
+                                <span class="text-sm text-gray-700">{{ color.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Image</label>
+                    <input type="file" name="image" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black file:text-white hover:file:bg-gray-800">
+                    {% if product and product.image %}
+                    <p class="mt-2 text-xs text-gray-400">Current: {{ product.image.name }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="featured" {% if product.featured %}checked{% endif %} class="rounded border-gray-300 text-black focus:ring-black">
+                        <span class="text-sm text-gray-700">Featured</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="is_available" {% if product.is_available or not product %}checked{% endif %} class="rounded border-gray-300 text-black focus:ring-black">
+                        <span class="text-sm text-gray-700">Available</span>
+                    </label>
+                </div>
+
+                <div class="flex items-center gap-3 pt-2">
+                    <button type="submit" class="px-8 py-3.5 bg-black text-white font-medium rounded-xl hover:bg-gray-800 transition">
+                        {% if product %}Update Product{% else %}Create Product{% endif %}
+                    </button>
+                    <a href="{% url 'dashboard:main' %}?tab=products" class="px-6 py-3.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition text-sm">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
